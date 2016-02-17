@@ -2933,65 +2933,65 @@ jQuery.fn.extend({
 	},
 	
 	animate: function( prop, speed, easing, callback ) {
-		var optall = jQuery.speed(speed, easing, callback);
+		var optall = jQuery.speed(speed, easing, callback);                  //* 3073行目で定義されているjQuery.speed()メソッドを呼び出してパラメータを利用しやすいように処理して変数optallに格納します。
 
-		return this[ optall.queue === false ? "each" : "queue" ](function(){
-			if ( this.nodeType != 1)
+		return this[ optall.queue === false ? "each" : "queue" ](function(){ //* 2938行目は，queueに追加するか即時実行するかの分岐用の条件式が定義されています。通常は，queueに追加して1つのアニメーションが終わってから次のアニメーションが実行されるのですが，animateの第2引数に{queue:false}が渡された場合にはeach()メソッドを使って2939行目以降の処理がすぐに実行されます。これにより，2種類のエフェクトを同時に実行することが可能になり，表現力が向上します。
+			if ( this.nodeType != 1)                                           //* 2939行目は，nodeTypeのチェックをして，もしelementノード以外の場合には何もせずに処理を終了します。
 				return false;
 
-			var opt = jQuery.extend({}, optall);
-			var hidden = jQuery(this).is(":hidden"), self = this;
+			var opt = jQuery.extend({}, optall);                                 //* 2942行目は，jQueryオブジェクトにoptallのプロパティを追加して，opt変数に代入しています。
+			var hidden = jQuery(this).is(":hidden"), self = this;                //* 2943行目は，選択された要素が現在非表示状態であるかを変数hiddenに格納し，同じく変数selfに自身を格納しています。
 			
-			for ( var p in prop ) {
-				if ( prop[p] == "hide" && hidden || prop[p] == "show" && !hidden )
+			for ( var p in prop ) {                                              //* 2945～2956行目で，第1引数propに渡されたアニメーションさせる属性について，それぞれ処理していきます。
+				if ( prop[p] == "hide" && hidden || prop[p] == "show" && !hidden ) //* 2946行目のif文により，指定された属性が"hide"で既に非表示，もしくは"show"で既に表示中の場合には，何もせずにopt.completeにcallback関数が定義されていればそれを実行します
 					return jQuery.isFunction(opt.complete) && opt.complete.apply(this);
 
-				if ( p == "height" || p == "width" ) {
+				if ( p == "height" || p == "width" ) {                             //* 2949行目のif文により，属性が"height"か"width"の場合には，現在のdisplayとoverflowの値を後々のために取得しておきます。
 					// Store display property
 					opt.display = jQuery.css(this, "display");
 
-					// Make sure that nothing sneaks out
+					// Make sure that nothing sneaks out                              //E sneak out(密かに離れる)
 					opt.overflow = this.style.overflow;
 				}
 			}
 
-			if ( opt.overflow != null )
+			if ( opt.overflow != null )                                           //* 2958行目は，もしopt.overflowの値がnullの場合にhiddenを設定しておきます。
 				this.style.overflow = "hidden";
 
-			opt.curAnim = jQuery.extend({}, prop);
+			opt.curAnim = jQuery.extend({}, prop);                                //* 2961行目は，opt.curAnimにjQueryオブジェクトに引数propの値を追加して格納します。
 			
-			jQuery.each( prop, function(name, val){
-				var e = new jQuery.fx( self, opt, name );
+			jQuery.each( prop, function(name, val){                               //* 2963行目からは，第1引数で渡されたアニメーション後の属性値propについて処理を行っていきます。
+				var e = new jQuery.fx( self, opt, name );                           //* 2964行目では，jQuery.fxをnewしてeに格納しています。これは，3122～3266行目で定義されているshow,hide,update,stepなどのエフェクト処理に関するメソッドと，3111行目で設定されるoptions,elem,propをプロパティとしてもつオブジェクトになります。
 
-				if ( /toggle|show|hide/.test(val) )
+				if ( /toggle|show|hide/.test(val) )                                 //* 2966行目は，値がtoggle,show,hideのいずれかの場合の処理で，e.hide()もしくはe.show()が呼び出されます。toggleの場合は，状態によりいずれか適切な方を呼び出します。
 					e[ val == "toggle" ? hidden ? "show" : "hide" : val ]( prop );
 				else {
-					var parts = val.toString().match(/^([+-]=)?([\d+-.]+)(.*)$/),
-						start = e.cur(true) || 0;
+					var parts = val.toString().match(/^([+-]=)?([\d+-.]+)(.*)$/),     //* 2969行目は，何らかの数値，もしくは'+= 10'などの相対値が指定されている場合を判定するための正規表現です。
+						start = e.cur(true) || 0;                                       //* また，2970行目で開始値として現在値を取得し，もし取得できなければ0に初期化しています。
 
-					if ( parts ) {
+					if ( parts ) {                                                    //* 2972行目のif文により，数値を含む形式であれば，変数endに終了値を設定，変数unitに単位が指定されていればその値を，なければ'px'を設定します。
 						var end = parseFloat(parts[2]),
 							unit = parts[3] || "px";
 
 						// We need to compute starting value
-						if ( unit != "px" ) {
+						if ( unit != "px" ) {                                           //* 2977行目は，もし単位が'px'でない場合に，startの値を再計算しています。
 							self.style[ name ] = (end || 1) + unit;
 							start = ((end || 1) / e.cur(true)) * start;
 							self.style[ name ] = start + unit;
 						}
 
 						// If a +=/-= token was provided, we're doing a relative animation
-						if ( parts[1] )
+						if ( parts[1] )                                               //* 2984行目は，'+='もしくは'-='のように相対値で指定された場合に，終了値を計算し直しています。
 							end = ((parts[1] == "-=" ? -1 : 1) * end) + start;
 
-						e.custom( start, end, unit );
+						e.custom( start, end, unit );                                 //* ここまでで計算した開始値と終了値を使って，jQuery.fn.custom()メソッドを実行するのが2987行目です。
 					} else
-						e.custom( start, val, "" );
+						e.custom( start, val, "" );                                   //* 指定された単位が'px'の場合には，2989行目にあるように第3引数を空にしてcustom()メソッドを実行します。custom()内でタイマーの設定などが行われます。
 				}
 			});
 
 			// For JS strict compliance
-			return true;
+			return true;                                                        //* return文に値を返すために，最後に2994行目でtrueを返してanimate()メソッドは終了です。
 		});
 	},
 	
@@ -3119,7 +3119,7 @@ jQuery.extend({
 
 });
 
-jQuery.fx.prototype = {
+jQuery.fx.prototype = {                                                //*2964: これは，3122～3266行目で定義されているshow,hide,update,stepなどのエフェクト処理に関するメソッドと，3111行目で設定されるoptions,elem,propをプロパティとしてもつオブジェクトになります。
 
 	// Simple function for setting a style value
 	update: function(){
@@ -3143,7 +3143,7 @@ jQuery.fx.prototype = {
 	},
 
 	// Start an animation from one number to another
-	custom: function(from, to, unit){
+	custom: function(from, to, unit){ //*2989: custom()内でタイマーの設定などが行われます。
 		this.startTime = (new Date()).getTime();
 		this.start = from;
 		this.end = to;
@@ -3265,7 +3265,7 @@ jQuery.fx.prototype = {
 
 };
 
-jQuery.fx.step = {
+jQuery.fx.step = {                                                         //* 3125:のfx.update()から実行される
 	scrollLeft: function(fx){
 		fx.elem.scrollLeft = fx.now;
 	},
@@ -3278,7 +3278,7 @@ jQuery.fx.step = {
 		jQuery.attr(fx.elem.style, "opacity", fx.now);
 	},
 
-	_default: function(fx){
+	_default: function(fx){                                                   //* fx.prop(width/height) style(css)のvalueが設定される ★jqueryのanimationはjavascriptのタイマーsetInterval(3165:)を使ってstyle(value)を書き換えている
 		fx.elem.style[ fx.prop ] = fx.now + fx.unit;
 	}
 };
